@@ -1,4 +1,4 @@
-﻿annotated-doc==0.0.4
+annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.12.1
 beartype==0.22.9
@@ -9,6 +9,7 @@ h11==0.16.0
 idna==3.11
 iniconfig==2.3.0
 Jinja2==3.1.6
+libknot==3.5.2
 MarkupSafe==3.0.3
 packaging==25.0
 pluggy==1.6.0

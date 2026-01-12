@@ -6,13 +6,11 @@ services:
     ports:
       - "8080:80"
       - "443:443"
-    dns:
-      - 8.8.8.8
     volumes:
       - .:/app
-      - python_libs:/usr/local/lib/python3.12/site-packages
+      - vscode-extensions:/root/.vscode-server/extensions
     environment:
-      - PYTHONPYCACHEPREFIX=/tmp/pycache
+      - PYTHONDONTWRITEBYTECODE=1
     entrypoint: /app/docker/entrypoint.sh
 volumes:
-  python_libs:
+  vscode-extensions:

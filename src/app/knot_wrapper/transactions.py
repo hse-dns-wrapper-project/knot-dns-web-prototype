@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from libknot.control import KnotCtl
 
 @contextmanager
-def open_socket(path: str = "/rundir/knot.sock", timeout: int = 300):
+def knot_socket(path: str = "/rundir/knot.sock", timeout: int = 300):
 	try:
 		ctl = KnotCtl()
 		ctl.connect(path)

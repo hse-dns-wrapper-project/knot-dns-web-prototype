@@ -1,0 +1,1 @@
+docker build --no-cache -t knot-dns-web -f docker/Dockerfile .

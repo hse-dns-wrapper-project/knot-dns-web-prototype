@@ -1,16 +1,52 @@
 services:
-  web:
+  #knot:
+  #  image: cznic/knot:latest
+  #  user: root
+  #  ports:
+  #    - "53:53"
+  #  volumes:
+  #    - knot_data:/var/lib/knot
+  #    - ./knot.conf:/etc/knot/knot.conf:ro
+  #    - knot_socket:/run/knot
+  #  command: knotd -c /etc/knot/knot.conf
+  #  networks:
+  #    - internal_net
+
+  #app:
+  #  build:
+  #    context: .
+  #    dockerfile: docker/Dockerfile
+  #  ports:
+  #    - "8080:80"
+  #    - "443:443"
+  #  volumes:
+  #    - .:/app
+  #    - vscode-extensions:/root/.vscode-server/extensions
+  #    - knot_socket:/run/knot
+  #  environment:
+  #    - PYTHONDONTWRITEBYTECODE=1
+  #    - KNOT_SOCKET="/run/knot/knot.sock"
+  #  entrypoint: /app/docker/entrypoint.sh
+  #  depends_on:
+  #    - knot
+  #  networks:
+  #    - internal_net
+
+  app:
     build:
       context: .
       dockerfile: docker/Dockerfile
     ports:
       - "8080:80"
       - "443:443"
+      - "53:53"
     volumes:
       - .:/app
       - vscode-extensions:/root/.vscode-server/extensions
     environment:
       - PYTHONDONTWRITEBYTECODE=1
+      - KNOT_SOCKET=/app/storage/sock/knot.sock
     entrypoint: /app/docker/entrypoint.sh
+
 volumes:
   vscode-extensions:

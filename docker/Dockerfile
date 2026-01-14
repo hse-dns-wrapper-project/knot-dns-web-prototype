@@ -1,10 +1,18 @@
-FROM python:3.12
+FROM cznic/knot:latest
 
 WORKDIR /app
 
-# Set Python libs
 COPY requirements.txt requirements.txt
-RUN pip install --upgrade pip && \
+
+RUN \
+    apt-get update && \
+    apt-get install python3 -y && \
+    apt-get install python3-pip -y && \
+    apt-get install python3-venv -y && \
+    rm -rf /var/lib/apt/lists/* && \
+    python3 -m venv /.venv && \
+    . /.venv/bin/activate && \
+    pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 COPY . /app
@@ -12,4 +20,4 @@ COPY . /app
 # Setup entrypoint
 COPY ./docker/entrypoint.sh entrypoint.sh
 RUN chmod +x entrypoint.sh
-ENTRYPOINT ["/knot-dns-web/entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]

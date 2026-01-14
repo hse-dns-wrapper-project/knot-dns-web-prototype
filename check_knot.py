@@ -6,7 +6,8 @@ from libknot.control import KnotCtl
 
 # Путь к сокету, который мы пробросили через Volume
 #libknot.Knot("/usr/lib/x86_64-linux-gnu/libknot.so.15")
-socket_path = os.environ.get("KNOT_SOCKET", "/app/storage/knot.sock")
+socket_path = os.environ.get("KNOT_SOCKET", "/root/knot/knot.sock")
+print(socket_path)
 
 def test_connection():
     ctl = KnotCtl()

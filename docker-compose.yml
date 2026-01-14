@@ -45,7 +45,7 @@ services:
       - vscode-extensions:/root/.vscode-server/extensions
     environment:
       - PYTHONDONTWRITEBYTECODE=1
-      - KNOT_SOCKET=/app/storage/sock/knot.sock
+      - KNOT_SOCKET=/app/storage/knot.sock
     entrypoint: /app/docker/entrypoint.sh
 
 volumes:

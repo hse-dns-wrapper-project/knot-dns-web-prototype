@@ -3,4 +3,4 @@ __pycache__
 .venv
 .vscode
 storage/database/*
-storage/sock/*
+knot.sock

@@ -1,3 +1,4 @@
+from typing import Any
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from libknot.control import KnotCtl
@@ -21,7 +22,7 @@ class KnotConfigTransaction(ABC):
         item: str,
         flags: str,
         filters: str
-    ):
+    ) -> Any:
         pass
     
     @abstractmethod
@@ -72,7 +73,7 @@ class KnotZoneTransaction(ABC):
         zone: str,
         owner: str,
         type: str
-    ):
+    ) -> Any:
         pass
 
     @abstractmethod

@@ -1,9 +1,9 @@
 
 from typing import Any
 from libknot.control import KnotCtl
-from .transaction import KnotZoneTransaction, KnotConfigTransaction
+from ...transaction import KnotZoneTransaction, KnotConfigTransaction
 
-from .transaction import set_knot_config_transaction_impl, set_knot_zone_transaction_impl
+from ...transaction import set_knot_config_transaction_impl, set_knot_zone_transaction_impl
 
 class KnotZoneTransactionImpl(KnotZoneTransaction):
     def __init__(self, reader_ctl: KnotCtl):

@@ -1,0 +1,14 @@
+from ..config import KnotConfigTransactionMTImpl
+from ..zones import KnotZoneTransactionMTImpl
+from ....transaction import set_knot_config_transaction_impl, set_knot_zone_transaction_impl
+
+from ..config import set_knot_config_transaction_processor
+from ..zones import set_knot_zone_transaction_processor
+
+from .processor import global_processor
+
+set_knot_config_transaction_processor(global_processor)
+set_knot_zone_transaction_processor(global_processor)
+
+set_knot_zone_transaction_impl(KnotZoneTransactionMTImpl)
+set_knot_config_transaction_impl(KnotConfigTransactionMTImpl)

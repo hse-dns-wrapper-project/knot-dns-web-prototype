@@ -5,7 +5,7 @@ from ...transaction import KnotZoneTransaction
 from .processor.processor import Processor
 
 from .processor.command import Command, CommandBatch
-from .commands.core.zone import ZoneSet, ZoneUnset
+from .commands.core.zone import ZoneGet, ZoneSet, ZoneUnset, ZoneCommit
 
 global_knot_zone_transaction_processor: Processor | None = None
 def set_knot_zone_transaction_processor(processor: Processor):
@@ -24,15 +24,18 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
     def commit(self):
         global global_knot_zone_transaction_processor
 
-        self.transaction_write_buffer.clear()
         if global_knot_zone_transaction_processor is None:
             return
 
+        self.transaction_write_buffer.append(
+            ZoneCommit()
+        )
         command_batch = CommandBatch(
             tuple(
                 self.transaction_write_buffer
             )
         )
+        self.transaction_write_buffer.clear()
         
         future = global_knot_zone_transaction_processor.add_command_batch(command_batch)
         future.result()
@@ -41,13 +44,14 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
         self.transaction_write_buffer.clear()
 
     def get(self, zone: str, owner: str, type: str):
-        self.reader_ctl.send_block(
-            cmd="zone-read",
-            zone=zone,
-            owner=owner,
-            rtype=type
-        )
-        result = self.reader_ctl.receive_block()
+        global global_knot_zone_transaction_processor
+
+        if global_knot_zone_transaction_processor is None:
+            return
+
+        command = ZoneGet(zone, owner, type)
+        future = global_knot_zone_transaction_processor.add_priority_command(command)
+        result = future.result()
         return result
     
     def set(self, zone: str, owner: str, type: str, ttl: str, data: str):

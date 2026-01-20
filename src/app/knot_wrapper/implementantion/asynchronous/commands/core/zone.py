@@ -1,6 +1,12 @@
 from dataclasses import dataclass
 
-from ...processor.command import Command
+from ...processor.command import Command, PriorityCommand
+
+@dataclass(frozen=True)
+class ZoneGet(PriorityCommand):
+    zone: str | None = None
+    owner: str | None = None
+    type: str | None = None
 
 @dataclass(frozen=True)
 class ZoneSet(Command):
@@ -16,3 +22,7 @@ class ZoneUnset(Command):
     owner: str | None = None
     type: str | None = None
     data: str | None = None
+
+@dataclass(frozen=True)
+class ZoneCommit(Command):
+    pass

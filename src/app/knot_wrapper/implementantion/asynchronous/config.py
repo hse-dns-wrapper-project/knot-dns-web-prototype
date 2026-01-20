@@ -23,23 +23,14 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
         global global_config_lock
 
         global_config_lock.acquire(timeout = timeout)
-
-        self.reader_ctl.send_block(cmd="conf-begin")
-        self.reader_ctl.receive_block()
     
     def commit(self):
         global global_config_lock
-
-        self.reader_ctl.send_block(cmd="conf-abort")
-        self.reader_ctl.receive_block()
 
         global_config_lock.release()
 
     def rollback(self):
         global global_config_lock
-        
-        self.reader_ctl.send_block(cmd="conf-abort")
-        self.reader_ctl.receive_block()
 
         global_config_lock.release()
 

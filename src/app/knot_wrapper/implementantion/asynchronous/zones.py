@@ -19,16 +19,10 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
         self.transaction_write_buffer: list[Command] = list()
 
     def open(self):
-        self.reader_ctl.send_block(cmd="zone-begin")
-        self.reader_ctl.receive_block()
-
         self.transaction_write_buffer.clear()
     
     def commit(self):
         global global_knot_zone_transaction_processor
-
-        self.reader_ctl.send_block(cmd="zone-abort")
-        self.reader_ctl.receive_block()
 
         self.transaction_write_buffer.clear()
         if global_knot_zone_transaction_processor is None:
@@ -44,9 +38,6 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
         future.result()
 
     def rollback(self):
-        self.reader_ctl.send_block(cmd="zone-abort")
-        self.reader_ctl.receive_block()
-    
         self.transaction_write_buffer.clear()
 
     def get(self, zone: str, owner: str, type: str):

@@ -13,8 +13,8 @@ def set_knot_config_transaction_processor(processor: Processor):
     global_knot_config_transaction_processor = processor
 
 class KnotConfigTransactionMTImpl(KnotConfigTransaction):
-    def __init__(self, reader_ctl: KnotCtl):
-        super().__init__(reader_ctl, None)
+    def __init__(self, ctl: KnotCtl):
+        super().__init__(ctl, None)
 
         self.transaction_write_buffer: list[Command] = list()
 

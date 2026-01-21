@@ -6,10 +6,10 @@ from libknot.control import KnotCtl
 class KnotConfigTransaction(ABC):
     def __init__(
         self,
-        reader_ctl: KnotCtl,
+        ctl: KnotCtl,
         processor
     ):
-        self.reader_ctl = reader_ctl
+        self.ctl = ctl
         self.processor = processor
 
         self.open()
@@ -59,10 +59,10 @@ class KnotConfigTransaction(ABC):
 class KnotZoneTransaction(ABC):
     def __init__(
         self,
-        reader_ctl: KnotCtl,
+        ctl: KnotCtl,
         processor
     ):
-        self.reader_ctl = reader_ctl
+        self.ctl = ctl
         self.processor = processor
 
         self.open()
@@ -121,7 +121,7 @@ def set_knot_zone_transaction_impl(impl: type[KnotZoneTransaction]):
     global_knot_zone_transaction_impl = impl
 
 @contextmanager
-def get_knot_reader(path: str):
+def get_knot_controller(path: str):
     ctl = None
     try:
         ctl = KnotCtl()
@@ -133,7 +133,7 @@ def get_knot_reader(path: str):
 
 @contextmanager
 def get_knot_config_transaction(
-    reader_ctl: KnotCtl,
+    ctl: KnotCtl,
     processor
 ):
     global global_knot_config_transaction_impl
@@ -141,7 +141,7 @@ def get_knot_config_transaction(
     try:
         if global_knot_config_transaction_impl is None:
             raise ValueError
-        transaction = global_knot_config_transaction_impl(reader_ctl, processor)
+        transaction = global_knot_config_transaction_impl(ctl, processor)
         yield transaction
         transaction.commit()
     except:
@@ -151,7 +151,7 @@ def get_knot_config_transaction(
 
 @contextmanager
 def get_knot_zone_transaction(
-    reader_ctl: KnotCtl,
+    ctl: KnotCtl,
     processor
 ):
     global global_knot_zone_transaction_impl
@@ -159,7 +159,7 @@ def get_knot_zone_transaction(
     try:
         if global_knot_zone_transaction_impl is None:
             raise ValueError
-        transaction = global_knot_zone_transaction_impl(reader_ctl, processor)
+        transaction = global_knot_zone_transaction_impl(ctl, processor)
         yield transaction
         transaction.commit()
     except:

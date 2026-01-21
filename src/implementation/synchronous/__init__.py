@@ -5,6 +5,9 @@ from ...transaction import KnotZoneTransaction, KnotConfigTransaction
 
 from ...transaction import set_knot_config_transaction_impl, set_knot_zone_transaction_impl
 
+from ..base_operations.config import get_config, set_config, unset_config
+from ..base_operations.zone import get_zone, set_zone, unset_zone
+
 class KnotZoneTransactionImpl(KnotZoneTransaction):
     def __init__(self, ctl: KnotCtl):
         super().__init__(ctl, None)
@@ -27,14 +30,12 @@ class KnotZoneTransactionImpl(KnotZoneTransaction):
         owner: str | None = None,
         type: str | None = None
     ):
-        self.ctl.send_block(
-            cmd="zone-read",
-            zone=zone, # type: ignore
-            owner=owner, # type: ignore
-            rtype=type # type: ignore
+        return get_zone(
+            self.ctl,
+            zone,
+            owner,
+            type
         )
-        result = self.ctl.receive_block()
-        return result
     
     def set(
         self,
@@ -44,30 +45,29 @@ class KnotZoneTransactionImpl(KnotZoneTransaction):
         ttl: str | None = None,
         data: str | None = None
     ):
-        self.ctl.send_block(
-            cmd="zone-set",
-            zone=zone, # type: ignore
-            owner=owner, # type: ignore
-            rtype=type, # type: ignore
-            ttl=ttl, # type: ignore
-            data=data # type: ignore
+        return set_zone(
+            self.ctl,
+            zone,
+            owner,
+            type,
+            ttl,
+            data
         )
-        self.ctl.receive_block()
 
     def unset(
         self,
         zone: str | None = None,
         owner: str | None = None,
         type: str | None = None,
-        data: str | None = None):
-        self.ctl.send_block(
-            cmd="zone-unset",
-            zone=zone, # type: ignore
-            owner=owner, # type: ignore
-            rtype=type, # type: ignore
-            data=data # type: ignore
+        data: str | None = None
+    ):
+        return unset_zone(
+            self.ctl,
+            zone,
+            owner,
+            type,
+            data
         )
-        self.ctl.receive_block()
 
 class KnotConfigTransactionImpl(KnotConfigTransaction):
     def __init__(self, ctl: KnotCtl):
@@ -93,16 +93,14 @@ class KnotConfigTransactionImpl(KnotConfigTransaction):
         flags: str | None = None,
         filters: str | None = None
     ) -> Any:
-        self.ctl.send_block(
-            cmd="conf-read",
-            section=section, # type: ignore
-            identifier=identifier, # type: ignore
-            item=item, # type: ignore
-            flags=flags, # type: ignore
-            filters=filters # type: ignore
+        return get_config(
+            self.ctl,
+            section,
+            identifier,
+            item,
+            flags,
+            filters
         )
-        result = self.ctl.receive_block()
-        return result
     
     def set(
         self,
@@ -111,14 +109,13 @@ class KnotConfigTransactionImpl(KnotConfigTransaction):
         item: str | None = None,
         data: str | None = None
     ):
-        self.ctl.send_block(
-            cmd="conf-set",
-            section=section, # type: ignore
-            identifier=identifier, # type: ignore
-            item=item, # type: ignore
-            data=data # type: ignore
+        return set_config(
+            self.ctl,
+            section,
+            identifier,
+            item,
+            data
         )
-        self.ctl.receive_block()
 
     def unset(
         self,
@@ -126,13 +123,12 @@ class KnotConfigTransactionImpl(KnotConfigTransaction):
         identifier: str | None = None,
         item: str | None = None
     ):
-        self.ctl.send_block(
-            cmd="conf-unset",
-            section=section, # type: ignore
-            identifier=identifier, # type: ignore
-            item=item # type: ignore
+        return unset_config(
+            self.ctl,
+            section,
+            identifier,
+            item
         )
-        self.ctl.receive_block()
 
 set_knot_config_transaction_impl(KnotConfigTransactionImpl)
 set_knot_zone_transaction_impl(KnotZoneTransactionImpl)

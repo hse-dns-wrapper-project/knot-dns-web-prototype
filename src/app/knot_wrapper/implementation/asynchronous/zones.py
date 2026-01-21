@@ -43,7 +43,12 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
     def rollback(self):
         self.transaction_write_buffer.clear()
 
-    def get(self, zone: str, owner: str, type: str):
+    def get(
+        self,
+        zone: str | None = None,
+        owner: str | None = None,
+        type: str | None = None
+    ):
         global global_knot_zone_transaction_processor
 
         if global_knot_zone_transaction_processor is None:
@@ -54,12 +59,25 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
         result = future.result()
         return result
     
-    def set(self, zone: str, owner: str, type: str, ttl: str, data: str):
+    def set(
+        self,
+        zone: str | None = None,
+        owner: str | None = None,
+        type: str | None = None,
+        ttl: str | None = None,
+        data: str | None = None
+    ):
         global global_knot_zone_transaction_processor
 
         command = ZoneSet(zone, owner, type, ttl, data)
         self.transaction_write_buffer.append(command)
 
-    def unset(self, zone: str, owner: str, type: str, data: str | None = None):
+    def unset(
+        self,
+        zone: str | None = None,
+        owner: str | None = None,
+        type: str | None = None,
+        data: str | None = None
+    ):
         command = ZoneUnset(zone, owner, type, data)
         self.transaction_write_buffer.append(command)

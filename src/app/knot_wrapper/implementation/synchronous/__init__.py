@@ -21,33 +21,50 @@ class KnotZoneTransactionImpl(KnotZoneTransaction):
         self.ctl.send_block(cmd="zone-abort")
         self.ctl.receive_block()
     
-    def get(self, zone: str, owner: str, type: str):
+    def get(
+        self,
+        zone: str | None = None,
+        owner: str | None = None,
+        type: str | None = None
+    ):
         self.ctl.send_block(
             cmd="zone-read",
-            zone=zone,
-            owner=owner,
-            rtype=type
+            zone=zone, # type: ignore
+            owner=owner, # type: ignore
+            rtype=type # type: ignore
         )
         result = self.ctl.receive_block()
         return result
     
-    def set(self, zone: str, owner: str, type: str, ttl: str, data: str):
+    def set(
+        self,
+        zone: str | None = None,
+        owner: str | None = None,
+        type: str | None = None,
+        ttl: str | None = None,
+        data: str | None = None
+    ):
         self.ctl.send_block(
             cmd="zone-set",
-            zone=zone,
-            owner=owner,
-            rtype=type,
-            ttl=ttl,
-            data=data
+            zone=zone, # type: ignore
+            owner=owner, # type: ignore
+            rtype=type, # type: ignore
+            ttl=ttl, # type: ignore
+            data=data # type: ignore
         )
         self.ctl.receive_block()
 
-    def unset(self, zone: str, owner: str, type: str, data: str | None = None):
+    def unset(
+        self,
+        zone: str | None = None,
+        owner: str | None = None,
+        type: str | None = None,
+        data: str | None = None):
         self.ctl.send_block(
             cmd="zone-unset",
-            zone=zone,
-            owner=owner,
-            rtype=type,
+            zone=zone, # type: ignore
+            owner=owner, # type: ignore
+            rtype=type, # type: ignore
             data=data # type: ignore
         )
         self.ctl.receive_block()
@@ -68,34 +85,52 @@ class KnotConfigTransactionImpl(KnotConfigTransaction):
         self.ctl.send_block(cmd="conf-abort")
         self.ctl.receive_block()
 
-    def get(self, section: str, identifier: str, item: str, flags: str, filters: str) -> Any:
+    def get(
+        self,
+        section: str | None = None,
+        identifier: str | None = None,
+        item: str | None = None,
+        flags: str | None = None,
+        filters: str | None = None
+    ) -> Any:
         self.ctl.send_block(
             cmd="conf-read",
-            section=section,
-            identifier=identifier,
-            item=item,
-            flags=flags,
-            filters=filters
+            section=section, # type: ignore
+            identifier=identifier, # type: ignore
+            item=item, # type: ignore
+            flags=flags, # type: ignore
+            filters=filters # type: ignore
         )
         result = self.ctl.receive_block()
         return result
     
-    def set(self, section: str, identifier: str, item: str, data: str):
+    def set(
+        self,
+        section: str | None = None,
+        identifier: str | None = None,
+        item: str | None = None,
+        data: str | None = None
+    ):
         self.ctl.send_block(
             cmd="conf-set",
-            section=section,
-            identifier=identifier,
-            item=item,
-            data=data
+            section=section, # type: ignore
+            identifier=identifier, # type: ignore
+            item=item, # type: ignore
+            data=data # type: ignore
         )
         self.ctl.receive_block()
 
-    def unset(self, section: str, identifier: str, item: str):
+    def unset(
+        self,
+        section: str | None = None,
+        identifier: str | None = None,
+        item: str | None = None
+    ):
         self.ctl.send_block(
             cmd="conf-unset",
-            section=section,
-            identifier=identifier,
-            item=item
+            section=section, # type: ignore
+            identifier=identifier, # type: ignore
+            item=item # type: ignore
         )
         self.ctl.receive_block()
 

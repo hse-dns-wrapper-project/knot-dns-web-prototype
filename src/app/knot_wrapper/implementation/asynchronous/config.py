@@ -43,7 +43,14 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
     def rollback(self):
         self.transaction_write_buffer.clear()
 
-    def get(self, section: str, identifier: str, item: str, flags: str, filters: str) -> Any:
+    def get(
+        self,
+        section: str | None = None,
+        identifier: str | None = None,
+        item: str | None = None,
+        flags: str | None = None,
+        filters: str | None = None
+    ) -> Any:
         global global_knot_config_transaction_processor
 
         if global_knot_config_transaction_processor is None:
@@ -54,12 +61,23 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
         result = future.result()
         return result
     
-    def set(self, section: str, identifier: str, item: str, data: str):
+    def set(
+        self,
+        section: str | None = None,
+        identifier: str | None = None,
+        item: str | None = None,
+        data: str | None = None
+    ):
         global global_knot_config_transaction_processor
 
         command = ConfigSet(section, identifier, item, data)
         self.transaction_write_buffer.append(command)
 
-    def unset(self, section: str, identifier: str, item: str):
+    def unset(
+        self,
+        section: str | None = None,
+        identifier: str | None = None,
+        item: str | None = None
+    ):
         command = ConfigUnset(section, identifier, item)
         self.transaction_write_buffer.append(command)

@@ -17,30 +17,30 @@ class KnotConfigTransaction(ABC):
     @abstractmethod
     def get(
         self,
-        section: str,
-        identifier: str,
-        item: str,
-        flags: str,
-        filters: str
+        section: str | None = None,
+        identifier: str | None = None,
+        item: str | None = None,
+        flags: str | None = None,
+        filters: str | None = None
     ) -> Any:
         pass
     
     @abstractmethod
     def set(
         self,
-        section: str,
-        identifier: str,
-        item: str,
-        data: str
+        section: str | None = None,
+        identifier: str | None = None,
+        item: str | None = None,
+        data: str | None = None
     ):
         pass
 
     @abstractmethod
     def unset(
         self,
-        section: str,
-        identifier: str,
-        item: str
+        section: str | None = None,
+        identifier: str | None = None,
+        item: str | None = None
     ):
         pass
 
@@ -70,29 +70,29 @@ class KnotZoneTransaction(ABC):
     @abstractmethod
     def get(
         self,
-        zone: str,
-        owner: str,
-        type: str
+        zone: str | None = None,
+        owner: str | None = None,
+        type: str | None = None
     ) -> Any:
         pass
 
     @abstractmethod
     def set(
         self,
-        zone: str,
-        owner: str,
-        type: str,
-        ttl: str,
-        data: str
+        zone: str | None = None,
+        owner: str | None = None,
+        type: str | None = None,
+        ttl: str | None = None,
+        data: str | None = None
     ):
         pass
 
     @abstractmethod
     def unset(
         self,
-        zone: str,
-        owner: str,
-        type: str,
+        zone: str | None = None,
+        owner: str | None = None,
+        type: str | None = None,
         data: str | None = None
     ):
         pass

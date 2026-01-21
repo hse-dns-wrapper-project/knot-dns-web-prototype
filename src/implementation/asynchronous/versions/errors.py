@@ -1,0 +1,3 @@
+
+class StaleDataError(Exception):
+    pass

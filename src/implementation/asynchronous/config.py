@@ -7,6 +7,8 @@ from .processor.command import Command, CommandBatch
 from .commands.core.config import ConfigGet, ConfigSet, ConfigUnset, ConfigCommit
 from .processor.processor import Processor
 
+from .versions.storage import VersionsStorage
+
 global_knot_config_transaction_processor: Processor | None = None
 def set_knot_config_transaction_processor(processor: Processor):
     global global_knot_config_transaction_processor
@@ -17,8 +19,9 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
         super().__init__(ctl, None)
 
         self.transaction_write_buffer: list[Command] = list()
+        self.versions_storage = VersionsStorage()
 
-    def open(self, timeout: int = -1):
+    def open(self):
         self.transaction_write_buffer.clear()
     
     def commit(self):
@@ -56,7 +59,13 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
         if global_knot_config_transaction_processor is None:
             return
 
-        command = ConfigGet(section, identifier, item, flags, filters)
+        command = ConfigGet(
+            section,
+            identifier,
+            item,
+            flags,
+            filters
+        )
         future = global_knot_config_transaction_processor.add_priority_command(command)
         result = future.result()
         return result
@@ -70,7 +79,12 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
     ):
         global global_knot_config_transaction_processor
 
-        command = ConfigSet(section, identifier, item, data)
+        command = ConfigSet(
+            section,
+            identifier,
+            item,
+            data
+        )
         self.transaction_write_buffer.append(command)
 
     def unset(
@@ -79,5 +93,9 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
         identifier: str | None = None,
         item: str | None = None
     ):
-        command = ConfigUnset(section, identifier, item)
+        command = ConfigUnset(
+            section,
+            identifier,
+            item
+        )
         self.transaction_write_buffer.append(command)

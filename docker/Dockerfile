@@ -19,6 +19,7 @@ COPY ./src /app/src
 COPY ./.devcontainer /app/.devcontainer
 COPY ./.gitignore /app/.gitignore
 COPY ./.dockerignore /app/.dockerignore
+COPY ./docker /app/docker
 COPY ./docker/launch.json /app/.vscode/launch.json
 COPY ./docker/settings.json /app/.vscode/settings.json
 

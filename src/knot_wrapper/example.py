@@ -1,20 +1,27 @@
 from typing import Any
+import threading
+import os
 
 from .implementation.asynchronous.service import *
 from .transaction import get_knot_config_transaction, get_knot_controller, get_knot_zone_transaction
 
-default_knot_path = "/root/knot/knot.sock"
+from .implementation.asynchronous.service.processor import global_processor
+
+default_knot_path = os.environ.get("KNOT_SOCKET", "/run/knot/knot.sock")
+from .implementation.asynchronous.service.knot_write_port import global_knot_controller
+global_knot_controller.connect(default_knot_path)
 
 def get_all_zones():
-    global default_knot_path
-    with get_knot_controller(default_knot_path) as ctl:
-        with get_knot_config_transaction(ctl) as transaction:
-            result = transaction.get(section="zone")
-            if len(result) == 0:
-                return tuple()
-            zones_dict: dict[str, Any] = result['zone']
-            zones = tuple((name for name in zones_dict))
-            return zones
+    global default_knot_path, global_knot_controller
+    with get_knot_config_transaction(global_knot_controller) as transaction:
+        #result = transaction.get(section="zone")
+        #if len(result) == 0:
+        #    return tuple()
+        #zones_dict: dict[str, Any] = result['zone']
+        #zones = tuple((name for name in zones_dict))
+        #return zones
+        result = transaction.get()
+        return result
 
 def add_zone(zone_name: str):
     global default_knot_path
@@ -55,9 +62,10 @@ Menu
 6. Remove record
 """
 
-def main():
-    global menu_choice
+def start_processor():
+    global_processor.run()
 
+def menu():
     while True:
         print("")
         print(menu_choice)
@@ -108,6 +116,13 @@ def main():
 
                 remove_record(zone_name, owner, rtype)
 
+def main():
+    global menu_choice
+
+    thread = threading.Thread(target=menu)
+    thread.start()
+
+    start_processor()
 
 if __name__ == "__main__":
     main()

@@ -41,13 +41,14 @@ services:
       - "443:443"
       - "53:53"
     volumes:
-      - .:/app
+      - ./src:/app/src
+      - ./storage:/app/storage
       - vscode-extensions:/root/.vscode-server/extensions
       - knot-sock:/root/knot
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       - KNOT_SOCKET=/root/knot/knot.sock
-    entrypoint: /app/docker/entrypoint.sh
+    entrypoint: /app/entrypoint.sh
 
 volumes:
   vscode-extensions:

@@ -18,7 +18,7 @@ def set_knot_zone_transaction_processor(processor: Processor):
 
 class KnotZoneTransactionMTImpl(KnotZoneTransaction):
     def __init__(self, ctl: KnotCtl):
-        super().__init__(ctl, None)
+        super().__init__(ctl)
 
         self.transaction_write_buffer: list[Command] = list()
         self.versions_storage = VersionsStorage()

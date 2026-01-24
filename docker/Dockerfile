@@ -10,14 +10,24 @@ RUN \
     apt-get install python3-pip -y && \
     apt-get install python3-venv -y && \
     rm -rf /var/lib/apt/lists/* && \
-    python3 -m venv /.venv && \
-    . /.venv/bin/activate && \
+    python3 -m venv /app/.venv && \
+    . /app/.venv/bin/activate && \
     pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-COPY . /app
+COPY ./src /app/src
+COPY ./.devcontainer /app/.devcontainer
+COPY ./.gitignore /app/.gitignore
+COPY ./.dockerignore /app/.dockerignore
+COPY ./docker/launch.json /app/.vscode/launch.json
+COPY ./docker/settings.json /app/.vscode/settings.json
+
+COPY ./conftest.py /app/conftest.py
+COPY ./pytest.ini /app/pytest.ini
+COPY ./check_knot.py /app/check_knot.py
+COPY ./run_check.sh /app/run_check.sh
 
 # Setup entrypoint
-COPY ./docker/entrypoint.sh entrypoint.sh
-RUN chmod +x entrypoint.sh
+COPY ./docker/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]

@@ -6,13 +6,9 @@ from libknot.control import KnotCtl
 class KnotConfigTransaction(ABC):
     def __init__(
         self,
-        ctl: KnotCtl,
-        processor
+        ctl: KnotCtl
     ):
         self.ctl = ctl
-        self.processor = processor
-
-        self.open()
 
     @abstractmethod
     def get(
@@ -59,13 +55,9 @@ class KnotConfigTransaction(ABC):
 class KnotZoneTransaction(ABC):
     def __init__(
         self,
-        ctl: KnotCtl,
-        processor
+        ctl: KnotCtl
     ):
         self.ctl = ctl
-        self.processor = processor
-
-        self.open()
 
     @abstractmethod
     def get(
@@ -133,15 +125,15 @@ def get_knot_controller(path: str):
 
 @contextmanager
 def get_knot_config_transaction(
-    ctl: KnotCtl,
-    processor
+    ctl: KnotCtl
 ):
     global global_knot_config_transaction_impl
     transaction = None
     try:
         if global_knot_config_transaction_impl is None:
             raise ValueError
-        transaction = global_knot_config_transaction_impl(ctl, processor)
+        transaction = global_knot_config_transaction_impl(ctl)
+        transaction.open()
         yield transaction
         transaction.commit()
     except:
@@ -151,15 +143,15 @@ def get_knot_config_transaction(
 
 @contextmanager
 def get_knot_zone_transaction(
-    ctl: KnotCtl,
-    processor
+    ctl: KnotCtl
 ):
     global global_knot_zone_transaction_impl
     transaction = None
     try:
         if global_knot_zone_transaction_impl is None:
             raise ValueError
-        transaction = global_knot_zone_transaction_impl(ctl, processor)
+        transaction = global_knot_zone_transaction_impl(ctl)
+        transaction.open()
         yield transaction
         transaction.commit()
     except:

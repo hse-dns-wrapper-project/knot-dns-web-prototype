@@ -9,7 +9,6 @@ from .implementation.asynchronous.service.processor import global_processor
 
 default_knot_path = os.environ.get("KNOT_SOCKET", "/run/knot/knot.sock")
 from .implementation.asynchronous.service.knot_write_port import global_knot_controller
-global_knot_controller.connect(default_knot_path)
 
 def get_all_zones():
     global default_knot_path, global_knot_controller
@@ -22,32 +21,30 @@ def get_all_zones():
         return zones
 
 def add_zone(zone_name: str):
-    global default_knot_path
-    with get_knot_controller(default_knot_path) as ctl:
-        with get_knot_config_transaction(ctl) as transaction:
-            transaction.set("zone", zone_name)
+    global default_knot_path, global_knot_controller
+    with get_knot_config_transaction(global_knot_controller) as transaction:
+        transaction.set("zone", zone_name)
 
 def remove_zone(zone_name: str):
     global default_knot_path
-    with get_knot_controller(default_knot_path) as ctl:
-        with get_knot_config_transaction(ctl) as transaction:
-            transaction.unset("zone", zone_name)
+    with get_knot_config_transaction(global_knot_controller) as transaction:
+        transaction.unset("zone", zone_name)
 
 def get_all_records():
-    with get_knot_controller(default_knot_path) as ctl:
-        with get_knot_zone_transaction(ctl) as transaction:
-            results = transaction.get()
-            return results
+    global global_knot_controller
+    with get_knot_zone_transaction(global_knot_controller, None) as transaction:
+        results = transaction.get()
+        return results
         
 def add_record(zone_name: str, owner: str, rtype: str, ttl: str, data: str):
-    with get_knot_controller(default_knot_path) as ctl:
-        with get_knot_zone_transaction(ctl) as transaction:
-            transaction.set(zone_name, owner, rtype, ttl, data)
+    global global_knot_controller
+    with get_knot_zone_transaction(global_knot_controller, zone_name) as transaction:
+        transaction.set(zone_name, owner, rtype, ttl, data)
 
 def remove_record(zone_name: str, owner: str, rtype: str):
-    with get_knot_controller(default_knot_path) as ctl:
-        with get_knot_zone_transaction(ctl) as transaction:
-            transaction.unset(zone_name, owner, rtype)
+    global global_knot_controller
+    with get_knot_zone_transaction(global_knot_controller, zone_name) as transaction:
+        transaction.unset(zone_name, owner, rtype)
 
 menu_choice = \
 """
@@ -115,12 +112,16 @@ def menu():
                 remove_record(zone_name, owner, rtype)
 
 def main():
-    global menu_choice
+    global menu_choice, global_knot_controller, default_knot_path
+
+    global_knot_controller.connect(default_knot_path)
 
     thread = threading.Thread(target=menu)
     thread.start()
 
     start_processor()
+
+    global_knot_controller.close()
 
 if __name__ == "__main__":
     main()

@@ -25,7 +25,7 @@ class ZoneUnset(Command):
 
 @dataclass(frozen=True)
 class ZoneBegin(Command):
-    pass
+    zone_name: str | None
 
 @dataclass(frozen=True)
 class ZoneAbort(Command):

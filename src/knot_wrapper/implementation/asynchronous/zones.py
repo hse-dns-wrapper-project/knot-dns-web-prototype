@@ -17,8 +17,8 @@ def set_knot_zone_transaction_processor(processor: Processor):
     global_knot_zone_transaction_processor = processor
 
 class KnotZoneTransactionMTImpl(KnotZoneTransaction):
-    def __init__(self, ctl: KnotCtl):
-        super().__init__(ctl)
+    def __init__(self, ctl: KnotCtl, zone_name: str | None = None):
+        super().__init__(ctl, zone_name)
 
         self.transaction_write_buffer: list[Command] = list()
         self.versions_storage = VersionsStorage()
@@ -74,7 +74,7 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
         command_batch = CommandBatch(
             (
                 ZoneAbort(),
-                ZoneBegin(),
+                ZoneBegin(self.zone_name),
             ) +
             tuple(
                 self.transaction_write_buffer
@@ -88,9 +88,9 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
         future = global_knot_zone_transaction_processor.add_command_batch(command_batch)
         future.result()
 
-        with global_commit_lock:
-            self.__try_buffer_versions__()
-            self.__update_buffer_versions__()
+        #with global_commit_lock:
+        #    self.__try_buffer_versions__()
+        #    self.__update_buffer_versions__()
 
     def rollback(self):
         self.transaction_write_buffer.clear()
@@ -114,11 +114,11 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
         future = global_knot_zone_transaction_processor.add_priority_command(command)
         result = future.result()
 
-        key = (zone, owner, type)
-        self.versions_storage.try_object(
-            global_versions_controller,
-            key
-        )
+        #key = (zone, owner, type)
+        #self.versions_storage.try_object(
+        #    global_versions_controller,
+        #    key
+        #)
 
         return result
     

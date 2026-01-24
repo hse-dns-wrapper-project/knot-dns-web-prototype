@@ -55,9 +55,11 @@ class KnotConfigTransaction(ABC):
 class KnotZoneTransaction(ABC):
     def __init__(
         self,
-        ctl: KnotCtl
+        ctl: KnotCtl,
+        zone_name: str | None
     ):
         self.ctl = ctl
+        self.zone_name = zone_name
 
     @abstractmethod
     def get(
@@ -143,14 +145,15 @@ def get_knot_config_transaction(
 
 @contextmanager
 def get_knot_zone_transaction(
-    ctl: KnotCtl
+    ctl: KnotCtl,
+    zone_name: str | None = None
 ):
     global global_knot_zone_transaction_impl
     transaction = None
     try:
         if global_knot_zone_transaction_impl is None:
             raise ValueError
-        transaction = global_knot_zone_transaction_impl(ctl)
+        transaction = global_knot_zone_transaction_impl(ctl, zone_name)
         transaction.open()
         yield transaction
         transaction.commit()

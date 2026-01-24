@@ -45,7 +45,7 @@ def _unset_zone(command: ZoneUnset):
 @bind_command(ZoneBegin)
 def begin_config(command: ZoneBegin):
     global global_knot_controller
-    global_knot_controller.send_block(cmd="zone-begin")
+    global_knot_controller.send_block(cmd="zone-begin", zone=command.zone_name) # type: ignore
     global_knot_controller.receive_block()
 
 @bind_command(ZoneAbort)

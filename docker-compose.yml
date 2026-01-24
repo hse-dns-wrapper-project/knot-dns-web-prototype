@@ -43,11 +43,11 @@ services:
     volumes:
       - ./src:/app/src
       - ./storage:/app/storage
-      - vscode-extensions:/root/.vscode-server/extensions
-      - knot-sock:/root/knot
+      - vscode-extensions:/run/.vscode-server/extensions
+      - knot-sock:/run/knot
     environment:
       - PYTHONDONTWRITEBYTECODE=1
-      - KNOT_SOCKET=/root/knot/knot.sock
+      - KNOT_SOCKET=/run/knot/knot.sock
     entrypoint: /app/entrypoint.sh
 
 volumes:

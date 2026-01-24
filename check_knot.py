@@ -4,7 +4,7 @@ import sys
 import libknot
 from libknot.control import KnotCtl
 
-socket_path = os.environ.get("KNOT_SOCKET", "/root/knot/knot.sock")
+socket_path = os.environ.get("KNOT_SOCKET", "/run/knot/knot.sock")
 print(socket_path)
 
 def test_connection():

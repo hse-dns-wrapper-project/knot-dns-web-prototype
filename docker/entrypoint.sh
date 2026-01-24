@@ -1,5 +1,5 @@
 #!/bin/bash
 
-knotd -C /root/knot/database/ -s /root/knot/knot.sock -d
+knotd -C /run/knot/database/ -s /run/knot/knot.sock -d
 
 sleep infinity

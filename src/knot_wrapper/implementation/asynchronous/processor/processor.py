@@ -97,9 +97,11 @@ class Processor:
                 handler = self.__get_handler__(command_type)
                 try:
                     result = self.__call_command__(command, handler)
-                    future.set_result(result)
+                    if not future.done():
+                        future.set_result(result)
                 except Exception as e:
-                    future.set_exception(e)
+                    if not future.done():
+                        future.set_exception(e)
 
     def run(self):
         """

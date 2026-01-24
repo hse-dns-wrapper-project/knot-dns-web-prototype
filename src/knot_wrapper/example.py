@@ -73,7 +73,7 @@ def menu():
             continue
         if items[0] == "exit":
             break
-        listitem = int(text)
+        listitem = int(text[0])
         match listitem:
             case 1:
                 zones = get_all_zones()

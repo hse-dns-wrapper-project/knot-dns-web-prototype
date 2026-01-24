@@ -1,6 +1,6 @@
 
 from ...service.processor import bind_command_global as bind_command
-from ..core.zone import ZoneGet, ZoneSet, ZoneUnset, ZoneCommit
+from ..core.zone import ZoneGet, ZoneSet, ZoneUnset, ZoneCommit, ZoneAbort, ZoneBegin
 
 from ...service.knot_write_port import global_knot_controller
 
@@ -42,8 +42,20 @@ def _unset_zone(command: ZoneUnset):
         command.data
     )
 
+@bind_command(ZoneBegin)
+def begin_config(command: ZoneBegin):
+    global global_knot_controller
+    global_knot_controller.send_block(cmd="zone-begin")
+    global_knot_controller.receive_block()
+
+@bind_command(ZoneAbort)
+def abort_config(command: ZoneAbort):
+    global global_knot_controller
+    global_knot_controller.send_block(cmd="zone-abort")
+    global_knot_controller.receive_block()
+
 @bind_command(ZoneCommit)
 def commit_config(command: ZoneCommit):
     global global_knot_controller
-    global_knot_controller.send_block(cmd="conf-commit")
+    global_knot_controller.send_block(cmd="zone-commit")
     global_knot_controller.receive_block()

@@ -24,5 +24,13 @@ class ZoneUnset(Command):
     data: str | None = None
 
 @dataclass(frozen=True)
+class ZoneBegin(Command):
+    pass
+
+@dataclass(frozen=True)
+class ZoneAbort(Command):
+    pass
+
+@dataclass(frozen=True)
 class ZoneCommit(Command):
     pass

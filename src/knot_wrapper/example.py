@@ -14,14 +14,12 @@ global_knot_controller.connect(default_knot_path)
 def get_all_zones():
     global default_knot_path, global_knot_controller
     with get_knot_config_transaction(global_knot_controller) as transaction:
-        #result = transaction.get(section="zone")
-        #if len(result) == 0:
-        #    return tuple()
-        #zones_dict: dict[str, Any] = result['zone']
-        #zones = tuple((name for name in zones_dict))
-        #return zones
-        result = transaction.get()
-        return result
+        result = transaction.get(section="zone")
+        if len(result) == 0:
+            return tuple()
+        zones_dict: dict[str, Any] = result['zone']
+        zones = tuple((name for name in zones_dict))
+        return zones
 
 def add_zone(zone_name: str):
     global default_knot_path

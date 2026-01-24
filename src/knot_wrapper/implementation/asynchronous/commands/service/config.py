@@ -1,6 +1,6 @@
 
 from ...service.processor import bind_command_global as bind_command
-from ..core.config import ConfigGet, ConfigSet, ConfigUnset, ConfigCommit
+from ..core.config import ConfigGet, ConfigSet, ConfigUnset, ConfigCommit, ConfigAbort, ConfigBegin
 
 from ...service.knot_write_port import global_knot_controller
 
@@ -41,6 +41,18 @@ def _unset_config(command: ConfigUnset):
         command.identifier,
         command.item
     )
+
+@bind_command(ConfigBegin)
+def begin_config(command: ConfigBegin):
+    global global_knot_controller
+    global_knot_controller.send_block(cmd="conf-begin")
+    global_knot_controller.receive_block()
+
+@bind_command(ConfigAbort)
+def abort_config(command: ConfigAbort):
+    global global_knot_controller
+    global_knot_controller.send_block(cmd="conf-abort")
+    global_knot_controller.receive_block()
 
 @bind_command(ConfigCommit)
 def commit_config(command: ConfigCommit):

@@ -5,7 +5,7 @@ from ...transaction import KnotZoneTransaction
 from .processor.processor import Processor
 
 from .processor.command import Command, CommandBatch
-from .commands.core.zone import ZoneGet, ZoneSet, ZoneUnset, ZoneCommit
+from .commands.core.zone import ZoneGet, ZoneSet, ZoneUnset, ZoneCommit, ZoneBegin
 
 from .versions.storage import VersionsStorage
 from .service.versions import global_versions_controller
@@ -68,13 +68,18 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
         if global_knot_zone_transaction_processor is None:
             return
 
-        self.transaction_write_buffer.append(
-            ZoneCommit()
-        )
+        if len(self.transaction_write_buffer) == 0:
+            return
 
         command_batch = CommandBatch(
+            (
+                ZoneBegin(),
+            ) +
             tuple(
                 self.transaction_write_buffer
+            ) +
+            (
+                ZoneCommit(),
             )
         )
         self.transaction_write_buffer.clear()

@@ -4,7 +4,7 @@ from libknot.control import KnotCtl
 from ...transaction import KnotConfigTransaction
 
 from .processor.command import Command, CommandBatch
-from .commands.core.config import ConfigGet, ConfigSet, ConfigUnset, ConfigCommit
+from .commands.core.config import ConfigGet, ConfigSet, ConfigUnset, ConfigCommit, ConfigBegin
 from .processor.processor import Processor
 
 from .versions.storage import VersionsStorage
@@ -29,13 +29,17 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
 
         if global_knot_config_transaction_processor is None:
             return
+        
+        if len(self.transaction_write_buffer) == 0:
+            return
 
-        self.transaction_write_buffer.append(
-            ConfigCommit()
-        )
         command_batch = CommandBatch(
-            tuple(
-                self.transaction_write_buffer
+            (
+                ConfigBegin(),
+            ) +
+            tuple(self.transaction_write_buffer) +
+            (
+                ConfigCommit(),
             )
         )
         self.transaction_write_buffer.clear()

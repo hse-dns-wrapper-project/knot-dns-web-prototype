@@ -24,5 +24,13 @@ class ConfigUnset(Command):
     item: str | None = None
 
 @dataclass(frozen=True)
+class ConfigBegin(Command):
+    pass
+
+@dataclass(frozen=True)
+class ConfigAbort(Command):
+    pass
+
+@dataclass(frozen=True)
 class ConfigCommit(Command):
     pass

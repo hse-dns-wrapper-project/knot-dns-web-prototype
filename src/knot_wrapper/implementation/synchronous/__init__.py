@@ -1,28 +1,55 @@
 
 from typing import Any
 from libknot.control import KnotCtl
-from ...transaction import KnotZoneTransaction, KnotConfigTransaction
+from ...transaction import KnotZoneTransaction, KnotConfigTransaction, KnotConnection
 
-from ...transaction import set_knot_config_transaction_impl, set_knot_zone_transaction_impl
+from ...transaction import set_knot_config_transaction_impl, set_knot_zone_transaction_impl, set_knot_ctl_transaction_impl
 
 from ..base_operations.config import get_config, set_config, unset_config
 from ..base_operations.zone import get_zone, set_zone, unset_zone
 
+class KnotConnectionImpl(KnotConnection):
+    def __init__(self) -> None:
+        self.ctl: KnotCtl | None = None
+
+    def open(self, path: str):
+        self.ctl = KnotCtl()
+        self.ctl.connect(path)
+    
+    def close(self):
+        if self.ctl is not None:
+            self.ctl.close()
+
+    def get_ctl(self) -> KnotCtl | None:
+        return self.ctl
+
 class KnotZoneTransactionImpl(KnotZoneTransaction):
-    def __init__(self, ctl: KnotCtl):
-        super().__init__(ctl, None)
+    def __init__(self, connection: KnotConnection):
+        super().__init__(connection, None)
 
     def open(self):
-        self.ctl.send_block(cmd="zone-begin")
-        self.ctl.receive_block()
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
+        ctl.send_block(cmd="zone-begin")
+        ctl.receive_block()
     
     def commit(self):
-        self.ctl.send_block(cmd="zone-commit")
-        self.ctl.receive_block()
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
+        ctl.send_block(cmd="zone-commit")
+        ctl.receive_block()
 
     def rollback(self):
-        self.ctl.send_block(cmd="zone-abort")
-        self.ctl.receive_block()
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
+        ctl.send_block(cmd="zone-abort")
+        ctl.receive_block()
     
     def get(
         self,
@@ -30,8 +57,12 @@ class KnotZoneTransactionImpl(KnotZoneTransaction):
         owner: str | None = None,
         type: str | None = None
     ):
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+
         return get_zone(
-            self.ctl,
+            ctl,
             zone,
             owner,
             type
@@ -45,8 +76,12 @@ class KnotZoneTransactionImpl(KnotZoneTransaction):
         ttl: str | None = None,
         data: str | None = None
     ):
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+
         return set_zone(
-            self.ctl,
+            ctl,
             zone,
             owner,
             type,
@@ -61,8 +96,12 @@ class KnotZoneTransactionImpl(KnotZoneTransaction):
         type: str | None = None,
         data: str | None = None
     ):
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
         return unset_zone(
-            self.ctl,
+            ctl,
             zone,
             owner,
             type,
@@ -70,20 +109,32 @@ class KnotZoneTransactionImpl(KnotZoneTransaction):
         )
 
 class KnotConfigTransactionImpl(KnotConfigTransaction):
-    def __init__(self, ctl: KnotCtl):
-        super().__init__(ctl, None)
+    def __init__(self, connection: KnotConnection):
+        super().__init__(connection)
 
     def open(self):
-        self.ctl.send_block(cmd="conf-begin")
-        self.ctl.receive_block()
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
+        ctl.send_block(cmd="conf-begin")
+        ctl.receive_block()
     
     def commit(self):
-        self.ctl.send_block(cmd="conf-commit")
-        self.ctl.receive_block()
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
+        ctl.send_block(cmd="conf-commit")
+        ctl.receive_block()
 
     def rollback(self):
-        self.ctl.send_block(cmd="conf-abort")
-        self.ctl.receive_block()
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
+        ctl.send_block(cmd="conf-abort")
+        ctl.receive_block()
 
     def get(
         self,
@@ -93,8 +144,12 @@ class KnotConfigTransactionImpl(KnotConfigTransaction):
         flags: str | None = None,
         filters: str | None = None
     ) -> Any:
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
         return get_config(
-            self.ctl,
+            ctl,
             section,
             identifier,
             item,
@@ -109,8 +164,12 @@ class KnotConfigTransactionImpl(KnotConfigTransaction):
         item: str | None = None,
         data: str | None = None
     ):
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
         return set_config(
-            self.ctl,
+            ctl,
             section,
             identifier,
             item,
@@ -123,8 +182,12 @@ class KnotConfigTransactionImpl(KnotConfigTransaction):
         identifier: str | None = None,
         item: str | None = None
     ):
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
         return unset_config(
-            self.ctl,
+            ctl,
             section,
             identifier,
             item

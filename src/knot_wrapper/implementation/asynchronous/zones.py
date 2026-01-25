@@ -1,6 +1,6 @@
 
 from libknot.control import KnotCtl
-from ...transaction import KnotZoneTransaction
+from ...transaction import KnotZoneTransaction, KnotConnection
 
 from .processor.processor import Processor
 
@@ -17,8 +17,8 @@ def set_knot_zone_transaction_processor(processor: Processor):
     global_knot_zone_transaction_processor = processor
 
 class KnotZoneTransactionMTImpl(KnotZoneTransaction):
-    def __init__(self, ctl: KnotCtl, zone_name: str | None = None):
-        super().__init__(ctl, zone_name)
+    def __init__(self, connection: KnotConnection, zone_name: str | None = None):
+        super().__init__(connection, zone_name)
 
         self.transaction_write_buffer: list[Command] = list()
         self.versions_storage = VersionsStorage()
@@ -71,16 +71,20 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
         if len(self.transaction_write_buffer) == 0:
             return
 
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+
         command_batch = CommandBatch(
             (
-                ZoneAbort(),
-                ZoneBegin(self.zone_name),
+                ZoneAbort(ctl),
+                ZoneBegin(ctl, self.zone_name),
             ) +
             tuple(
                 self.transaction_write_buffer
             ) +
             (
-                ZoneCommit(),
+                ZoneCommit(ctl),
             )
         )
         self.transaction_write_buffer.clear()
@@ -106,7 +110,12 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
         if global_knot_zone_transaction_processor is None:
             return
 
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+
         command = ZoneGet(
+            ctl,
             zone,
             owner,
             type
@@ -138,7 +147,12 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
             key
         )
 
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+
         command = ZoneSet(
+            ctl,
             zone,
             owner,
             type,
@@ -162,7 +176,12 @@ class KnotZoneTransactionMTImpl(KnotZoneTransaction):
             key
         )
 
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+
         command = ZoneUnset(
+            ctl,
             zone,
             owner,
             type,

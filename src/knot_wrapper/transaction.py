@@ -3,12 +3,25 @@ from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from libknot.control import KnotCtl
 
+class KnotConnection(ABC):
+    @abstractmethod
+    def open(self, path: str):
+        pass
+
+    @abstractmethod
+    def close(self):
+        pass
+
+    @abstractmethod
+    def get_ctl(self) -> KnotCtl | None:
+        pass
+
 class KnotConfigTransaction(ABC):
     def __init__(
         self,
-        ctl: KnotCtl
+        connection: KnotConnection
     ):
-        self.ctl = ctl
+        self.connection = connection
 
     @abstractmethod
     def get(
@@ -55,10 +68,10 @@ class KnotConfigTransaction(ABC):
 class KnotZoneTransaction(ABC):
     def __init__(
         self,
-        ctl: KnotCtl,
+        connection: KnotConnection,
         zone_name: str | None
     ):
-        self.ctl = ctl
+        self.connection = connection
         self.zone_name = zone_name
 
     @abstractmethod
@@ -103,6 +116,9 @@ class KnotZoneTransaction(ABC):
     def rollback(self):
         pass
 
+global_knot_path: str | None = None
+
+global_knot_ctl_transaction_impl: type[KnotConnection] | None = None
 global_knot_config_transaction_impl: type[KnotConfigTransaction] | None = None
 global_knot_zone_transaction_impl: type[KnotZoneTransaction] | None = None
 
@@ -114,27 +130,41 @@ def set_knot_zone_transaction_impl(impl: type[KnotZoneTransaction]):
     global global_knot_zone_transaction_impl
     global_knot_zone_transaction_impl = impl
 
+def set_knot_ctl_transaction_impl(impl: type[KnotConnection]):
+    global global_knot_ctl_transaction_impl
+    global_knot_ctl_transaction_impl = impl
+
+def set_knot_connection_path(path: str):
+    global global_knot_path
+    global_knot_path = path
+
 @contextmanager
-def get_knot_controller(path: str):
-    ctl = None
+def get_knot_connection():
+    global global_knot_ctl_transaction_impl, global_knot_path
+    if global_knot_ctl_transaction_impl is None:
+        return
+    if global_knot_path is None:
+        return
+    
+    connection = None
     try:
-        ctl = KnotCtl()
-        ctl.connect(path)
-        yield ctl
+        connection = global_knot_ctl_transaction_impl()
+        connection.open(global_knot_path)
+        yield connection
     finally:
-        if ctl is not None:
-            ctl.close()
+        if connection is not None:
+            connection.close()
 
 @contextmanager
 def get_knot_config_transaction(
-    ctl: KnotCtl
+    connection: KnotConnection
 ):
     global global_knot_config_transaction_impl
     transaction = None
     try:
         if global_knot_config_transaction_impl is None:
             raise ValueError
-        transaction = global_knot_config_transaction_impl(ctl)
+        transaction = global_knot_config_transaction_impl(connection)
         transaction.open()
         yield transaction
         transaction.commit()
@@ -145,7 +175,7 @@ def get_knot_config_transaction(
 
 @contextmanager
 def get_knot_zone_transaction(
-    ctl: KnotCtl,
+    connection: KnotConnection,
     zone_name: str | None = None
 ):
     global global_knot_zone_transaction_impl
@@ -153,7 +183,7 @@ def get_knot_zone_transaction(
     try:
         if global_knot_zone_transaction_impl is None:
             raise ValueError
-        transaction = global_knot_zone_transaction_impl(ctl, zone_name)
+        transaction = global_knot_zone_transaction_impl(connection, zone_name)
         transaction.open()
         yield transaction
         transaction.commit()

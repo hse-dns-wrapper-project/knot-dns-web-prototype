@@ -1,7 +1,7 @@
 
 from typing import Any
 from libknot.control import KnotCtl
-from ...transaction import KnotConfigTransaction
+from ...transaction import KnotConfigTransaction, KnotConnection
 
 from .processor.command import Command, CommandBatch
 from .commands.core.config import ConfigGet, ConfigSet, ConfigUnset, ConfigCommit, ConfigBegin, ConfigAbort
@@ -15,8 +15,8 @@ def set_knot_config_transaction_processor(processor: Processor):
     global_knot_config_transaction_processor = processor
 
 class KnotConfigTransactionMTImpl(KnotConfigTransaction):
-    def __init__(self, ctl: KnotCtl):
-        super().__init__(ctl)
+    def __init__(self, connection: KnotConnection):
+        super().__init__(connection)
 
         self.transaction_write_buffer: list[Command] = list()
         self.versions_storage = VersionsStorage()
@@ -32,15 +32,19 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
         
         if len(self.transaction_write_buffer) == 0:
             return
+        
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
 
         command_batch = CommandBatch(
             (
-                ConfigAbort(),
-                ConfigBegin(),
+                ConfigAbort(ctl),
+                ConfigBegin(ctl),
             ) +
             tuple(self.transaction_write_buffer) +
             (
-                ConfigCommit(),
+                ConfigCommit(ctl),
             )
         )
         self.transaction_write_buffer.clear()
@@ -64,7 +68,12 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
         if global_knot_config_transaction_processor is None:
             return
 
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+
         command = ConfigGet(
+            ctl,
             section,
             identifier,
             item,
@@ -84,7 +93,12 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
     ):
         global global_knot_config_transaction_processor
 
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+
         command = ConfigSet(
+            ctl,
             section,
             identifier,
             item,
@@ -98,7 +112,12 @@ class KnotConfigTransactionMTImpl(KnotConfigTransaction):
         identifier: str | None = None,
         item: str | None = None
     ):
+        ctl = self.connection.get_ctl()
+        if ctl is None:
+            return
+        
         command = ConfigUnset(
+            ctl,
             section,
             identifier,
             item
